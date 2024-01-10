@@ -15,16 +15,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
-
-
-
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.navigation.NavController
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Intro(){
+fun Intro(navController: NavController){
     var userName by remember { mutableStateOf("") }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,6 +49,8 @@ fun Intro(){
                 if (userName.isNotEmpty()) {
                     coroutineScope.launch {
                         Toast.makeText(context, "Hello, $userName!", Toast.LENGTH_SHORT).show()
+                        // Navigate to the WelcomePage with the provided name
+                        navController.navigate("welcome/${userName.replace(" ", "_")}")
                     }
                 } else {
                     Toast.makeText(context, "Please enter your name", Toast.LENGTH_SHORT).show()
@@ -55,6 +60,11 @@ fun Intro(){
                 .padding(top = 16.dp)
         ) {
             Text("Submit")
+        }
+    }
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            keyboardController?.hide()
         }
     }
 }
